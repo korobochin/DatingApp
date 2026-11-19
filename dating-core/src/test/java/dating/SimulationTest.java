@@ -59,8 +59,8 @@ class SimulationTest {
         assertEquals(EndReason.STEP_LIMIT, game.reason());
         assertEquals(400, game.engine().step());
         assertEquals(0, game.engine().rejectedCount());
-        assertEquals(173, n.friends().edgeCount());
-        assertEquals(22, n.matches().size());
+        assertEquals(160, n.friends().edgeCount());
+        assertEquals(18, n.matches().size());
     }
 
     @Test

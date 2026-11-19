@@ -15,6 +15,8 @@ public final class ProfileGenerator {
     private static final List<String> NAMES = List.of("Alex", "Maria", "Ivan", "Olga", "Dmitry", "Anna",
             "Sergey", "Elena", "Pavel", "Nina", "Egor", "Vera", "Timur", "Lena", "Oleg", "Sasha", "Kate",
             "Boris", "Dasha", "Max");
+    private static final List<Gender> GENDER_POOL = List.of(Gender.MALE, Gender.MALE, Gender.MALE, Gender.MALE,
+            Gender.FEMALE, Gender.FEMALE, Gender.FEMALE, Gender.FEMALE, Gender.OTHER, Gender.OTHER);
     private static final List<String> CITIES = List.of("Moscow", "Kazan", "Perm", "Samara");
     /** Interest pool used for random profiles. */
     public static final List<String> INTERESTS = List.of("chess", "hiking", "cinema", "jazz", "cooking",
@@ -37,7 +39,7 @@ public final class ProfileGenerator {
         Network.Builder builder = Network.builder();
         int photoId = 1;
         for (int id = 1; id <= users; id++) {
-            Gender gender = random.pick(List.of(Gender.values()));
+            Gender gender = random.pick(GENDER_POOL);
             Set<String> interests = new TreeSet<>();
             int wanted = random.nextInt(3, 5);
             while (interests.size() < wanted) {
