@@ -57,6 +57,27 @@ public interface NetworkView {
     /** @return pairs of users who liked each other's photos, ordered */
     Set<Pair> matches();
 
+    /** @return requests that were declined; a declined request cannot be sent again */
+    Set<FriendRequest> declinedRequests();
+
+    /**
+     * @param from sender
+     * @param to   recipient
+     * @return {@code true} if the recipient has already declined a request from the sender
+     */
+    default boolean wasDeclined(int from, int to) {
+        return declinedRequests().contains(new FriendRequest(from, to));
+    }
+
+    /**
+     * @param from sender
+     * @param to   recipient
+     * @return {@code true} if a new request {@code from -> to} would be legal
+     */
+    default boolean canRequest(int from, int to) {
+        return from != to && !areFriends(from, to) && !hasPendingBetween(from, to) && !wasDeclined(from, to);
+    }
+
     /**
      * @param a first user
      * @param b second user

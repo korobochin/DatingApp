@@ -3,6 +3,7 @@ package dating.stats;
 import dating.sim.Event;
 import dating.sim.EventObserver;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,7 +18,7 @@ public final class EventCounter implements EventObserver {
 
     /** @return event type name to number of occurrences, sorted by name */
     public Map<String, Long> counts() {
-        return Map.copyOf(new TreeMap<>(counts));
+        return Collections.unmodifiableMap(new TreeMap<>(counts));
     }
 
     /**

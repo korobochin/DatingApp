@@ -88,6 +88,9 @@ public sealed interface Command {
             if (n.hasRequest(to, from)) {
                 throw new IllegalActionException("User " + to + " already sent a request to " + from + "; accept it");
             }
+            if (n.wasDeclined(from, to)) {
+                throw new IllegalActionException("User " + to + " already declined a request from " + from);
+            }
         }
 
         @Override
@@ -139,7 +142,9 @@ public sealed interface Command {
 
         @Override
         public List<Event> execute(Network n) {
-            n.removeRequest(new FriendRequest(fromId, userId));
+            FriendRequest request = new FriendRequest(fromId, userId);
+            n.removeRequest(request);
+            n.addDeclined(request);
             return List.of(new Event.FriendRequestDeclined(fromId, userId));
         }
     }

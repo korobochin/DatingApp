@@ -41,7 +41,7 @@ public record SelectiveBot(int userId) implements Bot {
         return n.matches().stream()
                 .filter(pair -> pair.contains(userId))
                 .map(pair -> pair.other(userId))
-                .filter(other -> !n.areFriends(userId, other) && !n.hasPendingBetween(userId, other))
+                .filter(other -> n.canRequest(userId, other))
                 .findFirst()
                 .map(other -> new Command.SendFriendRequest(userId, other));
     }

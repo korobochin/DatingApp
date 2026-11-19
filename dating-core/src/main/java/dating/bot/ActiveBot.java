@@ -35,12 +35,12 @@ public record ActiveBot(int userId) implements Bot {
             }
         }
         List<Recommendation> recs = ctx.recommender().mightKnow(userId, 3).stream()
-                .filter(r -> !n.hasPendingBetween(userId, r.userId())).toList();
+                .filter(r -> n.canRequest(userId, r.userId())).toList();
         if (!recs.isEmpty()) {
             return Optional.of(new Command.SendFriendRequest(userId, ctx.random().pick(recs).userId()));
         }
         List<MatchResult> best = ctx.matcher()
-                .rank(userId, BotSupport.eligible(ctx, me).and(p -> !n.hasPendingBetween(userId, p.id())), 3);
+                .rank(userId, BotSupport.eligible(ctx, me).and(p -> n.canRequest(userId, p.id())), 3);
         if (!best.isEmpty()) {
             return Optional.of(new Command.SendFriendRequest(userId, ctx.random().pick(best).profile().id()));
         }

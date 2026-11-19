@@ -2,7 +2,12 @@ package dating.model;
 
 /** What a person is looking for on the platform. */
 public enum Intent {
-    FRIENDSHIP, DATING, ANY;
+    /** Looking for friends only. */
+    FRIENDSHIP,
+    /** Looking for a romantic partner. */
+    DATING,
+    /** Open to both. */
+    ANY;
 
     /**
      * @param other another intent

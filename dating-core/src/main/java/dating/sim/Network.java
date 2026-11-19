@@ -31,6 +31,7 @@ public final class Network implements NetworkView {
     private final Graph<Integer> friends = new Graph<>();
     private final Set<FriendRequest> requests = new TreeSet<>();
     private final Set<Pair> matches = new TreeSet<>();
+    private final Set<FriendRequest> declined = new TreeSet<>();
 
     private Network() {
     }
@@ -92,6 +93,11 @@ public final class Network implements NetworkView {
         return Collections.unmodifiableSet(matches);
     }
 
+    @Override
+    public Set<FriendRequest> declinedRequests() {
+        return Collections.unmodifiableSet(declined);
+    }
+
     /**
      * @param userId user id
      * @return the profile
@@ -125,6 +131,10 @@ public final class Network implements NetworkView {
 
     void removeRequest(FriendRequest request) {
         requests.remove(request);
+    }
+
+    void addDeclined(FriendRequest request) {
+        declined.add(request);
     }
 
     void addMatch(int a, int b) {
