@@ -1,9 +1,7 @@
 package dating.sim;
 
-import dating.exception.IllegalActionException;
 import dating.model.FriendRequest;
 import dating.model.Photo;
-import dating.model.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,7 @@ public sealed interface Command {
     record LikePhoto(int userId, int photoId) implements Command {
         @Override
         public void validate(Network n) {
-            n.requireProfile(userId);
+            n.profile(userId);
             Photo photo = n.photo(photoId)
                     .orElseThrow(() -> new IllegalActionException("Unknown photo " + photoId));
             if (photo.ownerId() == userId) {
@@ -74,8 +72,8 @@ public sealed interface Command {
     record SendFriendRequest(int from, int to) implements Command {
         @Override
         public void validate(Network n) {
-            n.requireProfile(from);
-            n.requireProfile(to);
+            n.profile(from);
+            n.profile(to);
             if (from == to) {
                 throw new IllegalActionException("User " + from + " cannot send a request to self");
             }
@@ -109,8 +107,8 @@ public sealed interface Command {
     record AcceptFriendRequest(int userId, int fromId) implements Command {
         @Override
         public void validate(Network n) {
-            n.requireProfile(userId);
-            n.requireProfile(fromId);
+            n.profile(userId);
+            n.profile(fromId);
             if (!n.hasRequest(fromId, userId)) {
                 throw new IllegalActionException("No pending request " + fromId + "->" + userId);
             }
@@ -133,8 +131,8 @@ public sealed interface Command {
     record DeclineFriendRequest(int userId, int fromId) implements Command {
         @Override
         public void validate(Network n) {
-            n.requireProfile(userId);
-            n.requireProfile(fromId);
+            n.profile(userId);
+            n.profile(fromId);
             if (!n.hasRequest(fromId, userId)) {
                 throw new IllegalActionException("No pending request " + fromId + "->" + userId);
             }
@@ -158,8 +156,8 @@ public sealed interface Command {
     record RemoveFriend(int userId, int otherId) implements Command {
         @Override
         public void validate(Network n) {
-            n.requireProfile(userId);
-            n.requireProfile(otherId);
+            n.profile(userId);
+            n.profile(otherId);
             if (!n.areFriends(userId, otherId)) {
                 throw new IllegalActionException("Users " + userId + " and " + otherId + " are not friends");
             }
@@ -169,57 +167,6 @@ public sealed interface Command {
         public List<Event> execute(Network n) {
             n.removeFriendship(userId, otherId);
             return List.of(new Event.FriendshipEnded(userId, otherId));
-        }
-    }
-
-    /**
-     * Add an interest to the profile.
-     *
-     * @param userId   profile owner
-     * @param interest interest to add (normalised before use)
-     */
-    record AddInterest(int userId, String interest) implements Command {
-        @Override
-        public void validate(Network n) {
-            Profile profile = n.requireProfile(userId);
-            if (interest == null || interest.isBlank()) {
-                throw new IllegalActionException("Interest must not be blank");
-            }
-            if (profile.interests().contains(Profile.normalize(interest))) {
-                throw new IllegalActionException("User " + userId + " already has interest '" + interest + "'");
-            }
-        }
-
-        @Override
-        public List<Event> execute(Network n) {
-            n.putProfile(n.profile(userId).withInterest(interest));
-            return List.of(new Event.InterestAdded(userId, Profile.normalize(interest)));
-        }
-    }
-
-    /**
-     * Move to another city.
-     *
-     * @param userId  profile owner
-     * @param newCity new city
-     */
-    record ChangeCity(int userId, String newCity) implements Command {
-        @Override
-        public void validate(Network n) {
-            Profile profile = n.requireProfile(userId);
-            if (newCity == null || newCity.isBlank()) {
-                throw new IllegalActionException("City must not be blank");
-            }
-            if (profile.city().equalsIgnoreCase(newCity.trim())) {
-                throw new IllegalActionException("User " + userId + " already lives in " + profile.city());
-            }
-        }
-
-        @Override
-        public List<Event> execute(Network n) {
-            Profile old = n.profile(userId);
-            n.putProfile(old.withCity(newCity.trim()));
-            return List.of(new Event.CityChanged(userId, old.city(), newCity.trim()));
         }
     }
 }

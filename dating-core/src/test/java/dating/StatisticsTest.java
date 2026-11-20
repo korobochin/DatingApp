@@ -1,10 +1,9 @@
 package dating;
 
+import dating.sim.Statistics;
 import dating.sim.Command;
 import dating.sim.Network;
 import dating.sim.SimulationEngine;
-import dating.stats.EventCounter;
-import dating.stats.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class StatisticsTest {
     private Network network;
     private SimulationEngine engine;
-    private EventCounter counter;
 
     @BeforeEach
     void setUp() {
@@ -30,8 +28,6 @@ class StatisticsTest {
                 .addFriendship(1, 2).addFriendship(1, 3)
                 .build();
         engine = new SimulationEngine(network);
-        counter = new EventCounter();
-        engine.subscribe(counter);
         engine.apply(new Command.LikePhoto(1, 1));
         engine.apply(new Command.LikePhoto(1, 2));
         engine.apply(new Command.LikePhoto(4, 2));
@@ -79,12 +75,5 @@ class StatisticsTest {
     void mostLikedProfilesAreOrderedByLikesThenId() {
         assertEquals(List.of(3, 2, 1), Statistics.mostLikedProfiles(network, 3));
         assertEquals(4L, Statistics.totalLikes(network));
-    }
-
-    @Test
-    void eventCounterCountsByEventType() {
-        assertEquals(4L, counter.count("PhotoLiked"));
-        assertEquals(0L, counter.count("MatchFormed"));
-        assertEquals(Map.of("PhotoLiked", 4L), counter.counts());
     }
 }

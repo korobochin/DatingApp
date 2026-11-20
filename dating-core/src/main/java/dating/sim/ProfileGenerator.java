@@ -1,10 +1,9 @@
-package dating.gen;
+package dating.sim;
 
 import dating.model.Gender;
 import dating.model.Intent;
 import dating.model.Profile;
 import dating.random.RandomSource;
-import dating.sim.Network;
 
 import java.util.List;
 import java.util.Set;

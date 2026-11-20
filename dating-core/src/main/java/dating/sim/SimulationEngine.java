@@ -1,6 +1,5 @@
 package dating.sim;
 
-import dating.exception.IllegalActionException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +36,7 @@ public final class SimulationEngine {
         this.network = network;
     }
 
-    /** @return the current state (read it through {@link dating.model.NetworkView}) */
+    /** @return the current state */
     public Network network() {
         return network;
     }

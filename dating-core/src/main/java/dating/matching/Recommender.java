@@ -1,6 +1,6 @@
 package dating.matching;
 
-import dating.model.NetworkView;
+import dating.sim.Network;
 
 import java.util.Comparator;
 import java.util.List;
@@ -15,12 +15,12 @@ public final class Recommender {
             Comparator.comparingInt(Recommendation::commonFriends).reversed()
                     .thenComparingInt(Recommendation::userId);
 
-    private final NetworkView network;
+    private final Network network;
 
     /**
      * @param network state to read
      */
-    public Recommender(NetworkView network) {
+    public Recommender(Network network) {
         this.network = network;
     }
 
@@ -28,7 +28,7 @@ public final class Recommender {
      * @param userId user to recommend for
      * @param limit  maximal number of suggestions
      * @return friends of friends that are not yet friends, most common friends first, ties by id
-     * @throws dating.exception.IllegalActionException if the user is unknown
+     * @throws dating.sim.IllegalActionException if the user is unknown
      */
     public List<Recommendation> mightKnow(int userId, int limit) {
         network.profile(userId);
@@ -43,7 +43,7 @@ public final class Recommender {
      * @param a first user
      * @param b second user
      * @return ids of their common friends, ascending
-     * @throws dating.exception.IllegalActionException if a user is unknown
+     * @throws dating.sim.IllegalActionException if a user is unknown
      */
     public Set<Integer> commonFriends(int a, int b) {
         network.profile(a);

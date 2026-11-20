@@ -1,6 +1,6 @@
 package dating;
 
-import dating.exception.IllegalActionException;
+import dating.sim.IllegalActionException;
 import dating.matching.Recommendation;
 import dating.matching.Recommender;
 import dating.sim.Network;

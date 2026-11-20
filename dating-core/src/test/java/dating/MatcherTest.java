@@ -1,8 +1,7 @@
 package dating;
 
-import dating.exception.IllegalActionException;
-import dating.filter.ProfileFilters;
-import dating.filter.SearchQuery;
+import dating.sim.IllegalActionException;
+import dating.matching.ProfileFilters;
 import dating.matching.MatchComparators;
 import dating.matching.MatchResult;
 import dating.matching.MatchScorer;
@@ -86,13 +85,6 @@ class MatcherTest {
     }
 
     @Test
-    void searchQueryCombinesAgeCityAndInterest() {
-        SearchQuery query = SearchQuery.builder().minAge(30).maxAge(40).city("Moscow").interest("Jazz").build();
-        assertEquals(List.of(2), ids(matcher.rank(1, query, 10)));
-        assertThrows(IllegalArgumentException.class, () -> SearchQuery.builder().minAge(40).maxAge(30).build());
-    }
-
-    @Test
     void equalScoresAreOrderedByCommonFriendsThenById() {
         Network n = Network.builder()
                 .addProfile(profile(1, 30, "Moscow", "chess"))
@@ -111,7 +103,7 @@ class MatcherTest {
     void comparatorsCanBeChainedInCustomOrder() {
         Comparator<MatchResult> byInterestsThenId = MatchComparators.chain(
                 List.of(MatchComparators.BY_COMMON_INTERESTS, MatchComparators.BY_ID));
-        Matcher m = new Matcher(network, MatchScorers.ageProximity(), byInterestsThenId);
+        Matcher m = new Matcher(network, MatchScorers.commonInterests(), byInterestsThenId);
         assertEquals(List.of(2, 4, 3, 5), ids(m.rank(1, p -> true, 10)));
     }
 

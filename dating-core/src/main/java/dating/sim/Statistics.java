@@ -1,6 +1,5 @@
-package dating.stats;
+package dating.sim;
 
-import dating.model.NetworkView;
 import dating.model.Profile;
 
 import java.util.Comparator;
@@ -19,7 +18,7 @@ public final class Statistics {
      * @param n state
      * @return number of profiles per city, cities sorted alphabetically
      */
-    public static Map<String, Long> profilesByCity(NetworkView n) {
+    public static Map<String, Long> profilesByCity(Network n) {
         return n.profiles().stream()
                 .collect(Collectors.groupingBy(Profile::city, TreeMap::new, Collectors.counting()));
     }
@@ -28,7 +27,7 @@ public final class Statistics {
      * @param n state
      * @return average age per city, cities sorted alphabetically
      */
-    public static Map<String, Double> averageAgeByCity(NetworkView n) {
+    public static Map<String, Double> averageAgeByCity(Network n) {
         return n.profiles().stream()
                 .collect(Collectors.groupingBy(Profile::city, TreeMap::new, Collectors.averagingInt(Profile::age)));
     }
@@ -37,7 +36,7 @@ public final class Statistics {
      * @param n state
      * @return count, min, max, average and sum of ages
      */
-    public static IntSummaryStatistics ageSummary(NetworkView n) {
+    public static IntSummaryStatistics ageSummary(Network n) {
         return n.profiles().stream().collect(Collectors.summarizingInt(Profile::age));
     }
 
@@ -46,7 +45,7 @@ public final class Statistics {
      * @param threshold age border
      * @return {@code true} to the number of profiles younger than the border, {@code false} to the others
      */
-    public static Map<Boolean, Long> youngerThan(NetworkView n, int threshold) {
+    public static Map<Boolean, Long> youngerThan(Network n, int threshold) {
         return n.profiles().stream()
                 .collect(Collectors.partitioningBy(p -> p.age() < threshold, Collectors.counting()));
     }
@@ -55,7 +54,7 @@ public final class Statistics {
      * @param n state
      * @return interests with the number of people who have them, most popular first, ties alphabetical
      */
-    public static List<Map.Entry<String, Long>> interestPopularity(NetworkView n) {
+    public static List<Map.Entry<String, Long>> interestPopularity(Network n) {
         return n.profiles().stream()
                 .flatMap(p -> p.interests().stream())
                 .collect(Collectors.groupingBy(i -> i, TreeMap::new, Collectors.counting()))
@@ -68,7 +67,7 @@ public final class Statistics {
      * @param n state
      * @return friend count to number of users with this friend count, ascending
      */
-    public static Map<Integer, Long> friendCountDistribution(NetworkView n) {
+    public static Map<Integer, Long> friendCountDistribution(Network n) {
         return n.profiles().stream()
                 .collect(Collectors.groupingBy(p -> n.friends().degree(p.id()), TreeMap::new, Collectors.counting()));
     }
@@ -78,7 +77,7 @@ public final class Statistics {
      * @param limit maximal number of ids
      * @return ids of the profiles with the most likes received, ties by id
      */
-    public static List<Integer> mostLikedProfiles(NetworkView n, int limit) {
+    public static List<Integer> mostLikedProfiles(Network n, int limit) {
         Comparator<Profile> order = Comparator.comparingInt((Profile p) -> n.likesReceived(p.id()))
                 .reversed().thenComparingInt(Profile::id);
         return n.profiles().stream().sorted(order).limit(limit).map(Profile::id).toList();
@@ -88,7 +87,7 @@ public final class Statistics {
      * @param n state
      * @return total number of likes given on the platform
      */
-    public static long totalLikes(NetworkView n) {
+    public static long totalLikes(Network n) {
         return n.profiles().stream().mapToLong(p -> n.likesReceived(p.id())).sum();
     }
 }

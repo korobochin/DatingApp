@@ -1,4 +1,4 @@
-package dating.filter;
+package dating.matching;
 
 import dating.model.Gender;
 import dating.model.Profile;

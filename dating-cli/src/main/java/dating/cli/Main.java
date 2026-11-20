@@ -1,22 +1,23 @@
 package dating.cli;
 
+import dating.sim.Statistics;
+import dating.sim.ProfileGenerator;
 import dating.bot.Bot;
 import dating.bot.BotFactory;
-import dating.gen.ProfileGenerator;
 import dating.random.RandomSource;
-import dating.runner.Simulation;
+import dating.bot.Simulation;
 import dating.sim.EndReason;
 import dating.sim.Network;
 import dating.sim.SimulationConfig;
 import dating.sim.SimulationEngine;
-import dating.stats.EventCounter;
-import dating.stats.Statistics;
 
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Console entry point.
@@ -57,8 +58,6 @@ public final class Main {
         int target = Integer.parseInt(options.getOrDefault("target", "0"));
         boolean quiet = options.containsKey("quiet");
         List<Bot> bots = BotFactory.createFor(network, random);
-        EventCounter counter = new EventCounter();
-        engine.subscribe(counter);
         if (!quiet) {
             engine.subscribe(e -> out.printf("[%03d] %s%n", engine.step(), renderer.render(e)));
         }
@@ -69,7 +68,9 @@ public final class Main {
         out.println();
         out.println("Ended: " + reason + ", accepted actions: " + engine.step()
                 + ", rejected: " + engine.rejectedCount());
-        out.println("Events: " + counter.counts());
+        out.println("Events: " + engine.journal().stream()
+                .flatMap(entry -> entry.events().stream())
+                .collect(Collectors.groupingBy(e -> e.getClass().getSimpleName(), TreeMap::new, Collectors.counting())));
         out.println("Friendships: " + network.friends().edgeCount() + ", matches: " + network.matches().size());
         out.println("Most liked users: " + Statistics.mostLikedProfiles(network, 5));
         out.println("Popular interests: " + Statistics.interestPopularity(network).stream().limit(5).toList());

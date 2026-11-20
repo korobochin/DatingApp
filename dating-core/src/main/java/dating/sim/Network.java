@@ -1,10 +1,7 @@
 package dating.sim;
 
-import dating.exception.IllegalActionException;
 import dating.graph.Graph;
-import dating.graph.GraphView;
 import dating.model.FriendRequest;
-import dating.model.NetworkView;
 import dating.model.Pair;
 import dating.model.Photo;
 import dating.model.Profile;
@@ -19,19 +16,20 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * The full state of the platform. Outside this package it can only be read
- * (through {@link NetworkView}); it is changed exclusively by commands applied by the
- * {@link SimulationEngine}. Initial state is assembled with {@link #builder()}.
+ * The full state of the platform: profiles, friendship graph, photos with likes,
+ * pending and declined friend requests, and mutual-like matches.
+ * Everything outside this package only reads it; it is changed exclusively by commands
+ * applied by the {@link SimulationEngine}. The initial state is assembled with {@link #builder()}.
  * All collections are sorted, so iteration order never depends on hashing.
  */
-public final class Network implements NetworkView {
+public final class Network {
     private final Map<Integer, Profile> profiles = new TreeMap<>();
     private final Map<Integer, Photo> photos = new TreeMap<>();
     private final Map<Integer, Set<Integer>> likes = new TreeMap<>();
     private final Graph<Integer> friends = new Graph<>();
     private final Set<FriendRequest> requests = new TreeSet<>();
-    private final Set<Pair> matches = new TreeSet<>();
     private final Set<FriendRequest> declined = new TreeSet<>();
+    private final Set<Pair> matches = new TreeSet<>();
 
     private Network() {
     }
@@ -43,12 +41,16 @@ public final class Network implements NetworkView {
 
     // ---------------------------------------------------------------- queries
 
-    @Override
+    /** @return all profiles ordered by id */
     public Collection<Profile> profiles() {
         return Collections.unmodifiableCollection(profiles.values());
     }
 
-    @Override
+    /**
+     * @param id user id
+     * @return the profile
+     * @throws IllegalActionException if the user does not exist
+     */
     public Profile profile(int id) {
         Profile profile = profiles.get(id);
         if (profile == null) {
@@ -57,54 +59,144 @@ public final class Network implements NetworkView {
         return profile;
     }
 
-    @Override
+    /**
+     * @param id user id
+     * @return {@code true} if such a user exists
+     */
     public boolean hasProfile(int id) {
         return profiles.containsKey(id);
     }
 
-    @Override
-    public GraphView<Integer> friends() {
+    /**
+     * The friendship graph keyed by user id. Read it freely, but change it only through commands.
+     *
+     * @return the friendship graph
+     */
+    public Graph<Integer> friends() {
         return friends;
     }
 
-    @Override
+    /**
+     * @param a first user
+     * @param b second user
+     * @return {@code true} if they are friends
+     */
+    public boolean areFriends(int a, int b) {
+        return friends.hasEdge(a, b);
+    }
+
+    /**
+     * @param photoId photo id
+     * @return the photo, if it exists
+     */
     public Optional<Photo> photo(int photoId) {
         return Optional.ofNullable(photos.get(photoId));
     }
 
-    @Override
+    /**
+     * @param userId owner id
+     * @return photos of the user ordered by id
+     */
     public List<Photo> photosOf(int userId) {
         return photos.values().stream().filter(p -> p.ownerId() == userId).toList();
     }
 
-    @Override
+    /**
+     * @param photoId photo id
+     * @return ids of users who liked the photo, ascending
+     */
     public Set<Integer> likers(int photoId) {
         Set<Integer> result = likes.get(photoId);
         return result == null ? Set.of() : Collections.unmodifiableSet(result);
     }
 
-    @Override
-    public Set<FriendRequest> requests() {
-        return Collections.unmodifiableSet(requests);
+    /**
+     * @param userId user id
+     * @param photoId photo id
+     * @return {@code true} if the user liked the photo
+     */
+    public boolean hasLiked(int userId, int photoId) {
+        return likers(photoId).contains(userId);
     }
 
-    @Override
-    public Set<Pair> matches() {
-        return Collections.unmodifiableSet(matches);
-    }
-
-    @Override
-    public Set<FriendRequest> declinedRequests() {
-        return Collections.unmodifiableSet(declined);
+    /**
+     * @param liker possible liker
+     * @param owner photo owner
+     * @return {@code true} if the liker liked at least one photo of the owner
+     */
+    public boolean hasLikedAnyPhotoOf(int liker, int owner) {
+        return photosOf(owner).stream().anyMatch(p -> hasLiked(liker, p.id()));
     }
 
     /**
      * @param userId user id
-     * @return the profile
-     * @throws IllegalActionException if the user does not exist
+     * @return total number of likes received on all photos of the user
      */
-    public Profile requireProfile(int userId) {
-        return profile(userId);
+    public int likesReceived(int userId) {
+        return photosOf(userId).stream().mapToInt(p -> likers(p.id()).size()).sum();
+    }
+
+    /** @return pending friend requests ordered by sender, then recipient */
+    public Set<FriendRequest> requests() {
+        return Collections.unmodifiableSet(requests);
+    }
+
+    /**
+     * @param userId recipient id
+     * @return requests addressed to the user
+     */
+    public List<FriendRequest> incoming(int userId) {
+        return requests.stream().filter(r -> r.to() == userId).toList();
+    }
+
+    /**
+     * @param userId sender id
+     * @return requests sent by the user
+     */
+    public List<FriendRequest> outgoing(int userId) {
+        return requests.stream().filter(r -> r.from() == userId).toList();
+    }
+
+    /**
+     * @param from sender
+     * @param to   recipient
+     * @return {@code true} if exactly this request is pending
+     */
+    public boolean hasRequest(int from, int to) {
+        return requests.contains(new FriendRequest(from, to));
+    }
+
+    /**
+     * @param from sender
+     * @param to   recipient
+     * @return {@code true} if the recipient has already declined a request from the sender
+     */
+    public boolean wasDeclined(int from, int to) {
+        return declined.contains(new FriendRequest(from, to));
+    }
+
+    /**
+     * @param from sender
+     * @param to   recipient
+     * @return {@code true} if a new request {@code from -> to} would be legal
+     */
+    public boolean canRequest(int from, int to) {
+        return from != to && !areFriends(from, to) && !hasRequest(from, to) && !hasRequest(to, from)
+                && !wasDeclined(from, to);
+    }
+
+    /** @return pairs of users who liked each other's photos, ordered */
+    public Set<Pair> matches() {
+        return Collections.unmodifiableSet(matches);
+    }
+
+    /**
+     * @param a first user
+     * @param b second user
+     * @return {@code true} if the two users already formed a mutual-like match
+     */
+    public boolean isMatched(int a, int b) {
+        return matches.contains(Pair.of(a, b));
     }
 
     // -------------------------------------------- mutators (package-private)

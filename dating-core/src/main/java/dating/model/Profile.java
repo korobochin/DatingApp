@@ -64,24 +64,6 @@ public record Profile(int id, String name, int age, String city, Gender gender,
         }
     }
 
-    /**
-     * @param newCity new city
-     * @return a copy of this profile living in another city
-     */
-    public Profile withCity(String newCity) {
-        return new Profile(id, name, age, newCity, gender, lookingFor, intent, interests);
-    }
-
-    /**
-     * @param interest an interest to add
-     * @return a copy of this profile with one more interest
-     */
-    public Profile withInterest(String interest) {
-        Set<String> all = new TreeSet<>(interests);
-        all.add(interest);
-        return new Profile(id, name, age, city, gender, lookingFor, intent, all);
-    }
-
     /** @return a new builder */
     public static Builder builder() {
         return new Builder();

@@ -35,13 +35,4 @@ class ProfileTest {
         Profile p = profile(1, 20, "Moscow", "chess");
         assertThrows(UnsupportedOperationException.class, () -> p.interests().add("jazz"));
     }
-
-    @Test
-    void withCityReturnsModifiedCopy() {
-        Profile p = profile(1, 20, "Moscow", "chess");
-        Profile moved = p.withCity("Kazan");
-        assertEquals("Moscow", p.city());
-        assertEquals("Kazan", moved.city());
-        assertEquals(p.interests(), moved.interests());
-    }
 }

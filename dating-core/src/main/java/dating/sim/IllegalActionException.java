@@ -1,4 +1,4 @@
-package dating.exception;
+package dating.sim;
 
 /**
  * Thrown when a command breaks the rules of the platform

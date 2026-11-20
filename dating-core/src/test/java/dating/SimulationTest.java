@@ -1,14 +1,13 @@
 package dating;
 
+import dating.sim.ProfileGenerator;
 import dating.bot.Bot;
 import dating.bot.BotFactory;
-import dating.gen.ProfileGenerator;
-import dating.model.NetworkView;
+import dating.sim.Network;
 import dating.model.Profile;
 import dating.random.RandomSource;
-import dating.runner.Simulation;
+import dating.bot.Simulation;
 import dating.sim.EndReason;
-import dating.sim.Network;
 import dating.sim.SimulationConfig;
 import dating.sim.SimulationEngine;
 import org.junit.jupiter.api.Test;
@@ -55,12 +54,12 @@ class SimulationTest {
     @Test
     void fullGameFromFixedSeedHasExpectedOutcome() {
         Game game = play(2024, 25, SimulationConfig.limitedTo(400));
-        NetworkView n = game.engine().network();
+        Network n = game.engine().network();
         assertEquals(EndReason.STEP_LIMIT, game.reason());
         assertEquals(400, game.engine().step());
         assertEquals(0, game.engine().rejectedCount());
-        assertEquals(160, n.friends().edgeCount());
-        assertEquals(18, n.matches().size());
+        assertEquals(177, n.friends().edgeCount());
+        assertEquals(30, n.matches().size());
     }
 
     @Test
@@ -121,7 +120,7 @@ class SimulationTest {
     @Test
     void finishedGameKeepsRuleInvariants() {
         Game game = play(99, 30, SimulationConfig.limitedTo(600));
-        NetworkView n = game.engine().network();
+        Network n = game.engine().network();
         for (var request : n.requests()) {
             assertFalse(n.areFriends(request.from(), request.to()));
             assertNotEquals(request.from(), request.to());

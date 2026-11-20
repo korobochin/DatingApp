@@ -1,6 +1,6 @@
 package dating;
 
-import dating.exception.IllegalActionException;
+import dating.sim.IllegalActionException;
 import dating.model.FriendRequest;
 import dating.model.Pair;
 import dating.sim.Command;
@@ -131,23 +131,6 @@ class EngineTest {
         engine.apply(new Command.RemoveFriend(3, 4));
         assertFalse(network.areFriends(3, 4));
         assertThrows(IllegalActionException.class, () -> engine.apply(new Command.RemoveFriend(3, 4)));
-    }
-
-    // -------------------------------------------------------------- profile
-
-    @Test
-    void addingInterestNormalizesAndRejectsDuplicates() {
-        assertThrows(IllegalActionException.class, () -> engine.apply(new Command.AddInterest(1, " CHESS ")));
-        assertThrows(IllegalActionException.class, () -> engine.apply(new Command.AddInterest(1, "  ")));
-        assertEquals(List.of(new Event.InterestAdded(1, "jazz")), engine.apply(new Command.AddInterest(1, " Jazz")));
-        assertEquals(Set.of("chess", "jazz"), network.profile(1).interests());
-    }
-
-    @Test
-    void changingCityToTheSameOneIsIllegal() {
-        assertThrows(IllegalActionException.class, () -> engine.apply(new Command.ChangeCity(1, "moscow")));
-        assertEquals(List.of(new Event.CityChanged(1, "Moscow", "Kazan")), engine.apply(new Command.ChangeCity(1, "Kazan")));
-        assertEquals("Kazan", network.profile(1).city());
     }
 
     // ------------------------------------------------------ engine behaviour

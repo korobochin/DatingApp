@@ -62,25 +62,6 @@ public sealed interface Event {
     }
 
     /**
-     * An interest was added to a profile.
-     *
-     * @param userId   profile owner
-     * @param interest normalised interest
-     */
-    record InterestAdded(int userId, String interest) implements Event {
-    }
-
-    /**
-     * A user moved to another city.
-     *
-     * @param userId  profile owner
-     * @param oldCity previous city
-     * @param newCity new city
-     */
-    record CityChanged(int userId, String oldCity, String newCity) implements Event {
-    }
-
-    /**
      * A command broke the rules and was not applied.
      *
      * @param command rejected command

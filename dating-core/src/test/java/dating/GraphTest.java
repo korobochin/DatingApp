@@ -1,7 +1,6 @@
 package dating;
 
 import dating.graph.Graph;
-import dating.graph.GraphView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -91,7 +90,7 @@ class GraphTest {
     void edgesAreListedOnceInSortedOrder() {
         g.addEdge(3, 1);
         g.addEdge(2, 1);
-        assertEquals(List.of(new GraphView.Edge<>(1, 2), new GraphView.Edge<>(1, 3)), g.edges());
+        assertEquals(List.of(new Graph.Edge<>(1, 2), new Graph.Edge<>(1, 3)), g.edges());
     }
 
     @Test

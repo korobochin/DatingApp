@@ -1,7 +1,5 @@
-package dating.runner;
+package dating.bot;
 
-import dating.bot.Bot;
-import dating.bot.BotContext;
 import dating.random.RandomSource;
 import dating.sim.Command;
 import dating.sim.EndReason;

@@ -1,6 +1,6 @@
 package dating.matching;
 
-import dating.model.NetworkView;
+import dating.sim.Network;
 import dating.model.Profile;
 
 import java.util.Comparator;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
  * are injected, so the same class serves dating search, friend search and bots.
  */
 public final class Matcher {
-    private final NetworkView network;
+    private final Network network;
     private final MatchScorer scorer;
     private final Comparator<MatchResult> order;
 
@@ -21,7 +21,7 @@ public final class Matcher {
      * @param scorer  scoring strategy
      * @param order   ordering of results
      */
-    public Matcher(NetworkView network, MatchScorer scorer, Comparator<MatchResult> order) {
+    public Matcher(Network network, MatchScorer scorer, Comparator<MatchResult> order) {
         this.network = network;
         this.scorer = scorer;
         this.order = order;
@@ -32,7 +32,7 @@ public final class Matcher {
      *
      * @param network state to search in
      */
-    public Matcher(NetworkView network) {
+    public Matcher(Network network) {
         this(network, MatchScorers.standard(), MatchComparators.DEFAULT);
     }
 
@@ -43,7 +43,7 @@ public final class Matcher {
      * @param filter additional condition on candidates (the user is always excluded)
      * @param limit  maximal number of results, non-negative
      * @return best candidates first
-     * @throws dating.exception.IllegalActionException if the user is unknown
+     * @throws dating.sim.IllegalActionException if the user is unknown
      */
     public List<MatchResult> rank(int userId, Predicate<Profile> filter, int limit) {
         Profile me = network.profile(userId);

@@ -20,8 +20,6 @@ public final class ConsoleRenderer {
             case Event.FriendRequestDeclined e -> "user %d declined the request of user %d".formatted(e.to(), e.from());
             case Event.FriendshipCreated e -> "FRIENDS: users %d and %d".formatted(e.requesterId(), e.accepterId());
             case Event.FriendshipEnded e -> "user %d is no longer friends with user %d".formatted(e.userId(), e.otherId());
-            case Event.InterestAdded e -> "user %d added interest '%s'".formatted(e.userId(), e.interest());
-            case Event.CityChanged e -> "user %d moved from %s to %s".formatted(e.userId(), e.oldCity(), e.newCity());
             case Event.ActionRejected e -> "rejected %s: %s".formatted(e.command(), e.reason());
             case Event.SimulationEnded e -> "END (%s) after %d accepted actions".formatted(e.reason(), e.steps());
         };

@@ -1,14 +1,15 @@
 package dating.cli;
 
-import dating.exception.IllegalActionException;
+import dating.sim.Statistics;
+import dating.sim.IllegalActionException;
 import dating.matching.Matcher;
+import dating.matching.ProfileFilters;
 import dating.matching.Recommender;
-import dating.model.NetworkView;
+import dating.sim.Network;
 import dating.model.Photo;
-import dating.runner.Simulation;
+import dating.bot.Simulation;
 import dating.sim.Command;
 import dating.sim.SimulationEngine;
-import dating.stats.Statistics;
 
 import java.io.PrintStream;
 import java.util.Scanner;
@@ -34,7 +35,7 @@ final class PlaySession {
     }
 
     void run() {
-        NetworkView n = engine.network();
+        Network n = engine.network();
         Matcher matcher = new Matcher(n);
         Recommender recommender = new Recommender(n);
         out.println("You are " + renderer.render(n.profile(me)));
@@ -55,7 +56,7 @@ final class PlaySession {
                     }
                     case "me" -> out.println(renderer.render(n.profile(me)));
                     case "match" -> matcher.rank(me,
-                                    dating.filter.ProfileFilters.compatibleWith(n.profile(me)).and(matcher.notFriendsWith(me)),
+                                    ProfileFilters.compatibleWith(n.profile(me)).and(matcher.notFriendsWith(me)),
                                     number(words, 1, 5))
                             .forEach(r -> out.println(renderer.render(r)));
                     case "know" -> recommender.mightKnow(me, number(words, 1, 5))
@@ -73,8 +74,6 @@ final class PlaySession {
                     case "accept" -> act(new Command.AcceptFriendRequest(me, number(words, 1, -1)));
                     case "decline" -> act(new Command.DeclineFriendRequest(me, number(words, 1, -1)));
                     case "unfriend" -> act(new Command.RemoveFriend(me, number(words, 1, -1)));
-                    case "interest" -> act(new Command.AddInterest(me, rest(words)));
-                    case "city" -> act(new Command.ChangeCity(me, rest(words)));
                     case "pass" -> bots.playRound();
                     default -> out.println("Unknown command. Type 'help'.");
                 }
@@ -99,18 +98,11 @@ final class PlaySession {
         return fallback;
     }
 
-    private static String rest(String[] words) {
-        if (words.length < 2) {
-            throw new IllegalArgumentException("an argument is required");
-        }
-        return String.join(" ", java.util.Arrays.copyOfRange(words, 1, words.length));
-    }
-
     private void help() {
         out.println("me | friends | requests | photos [userId] | stats");
         out.println("match [n]        best candidates for you");
         out.println("know [n]         people you may know");
         out.println("like <photoId> | request <userId> | accept <userId> | decline <userId> | unfriend <userId>");
-        out.println("interest <name> | city <name> | pass (let bots move) | quit");
+        out.println("pass (let bots move) | quit");
     }
 }
